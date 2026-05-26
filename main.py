@@ -1,0 +1,226 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import httpx
+from bs4 import BeautifulSoup
+import anthropic
+import os
+
+app = FastAPI(title="GEO API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://ai-syah.nl", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+class AuditRequest(BaseModel):
+    url: str
+
+class FullReportRequest(BaseModel):
+    url: str
+    email: str
+
+def fetch_website(url: str) -> dict:
+    """Haal website inhoud op en analyseer basis elementen"""
+    if not url.startswith("http"):
+        url = "https://" + url
+    
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; GEOBot/1.0; +https://ai-syah.nl)"
+        }
+        response = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # Basis checks
+        has_meta_description = bool(soup.find("meta", {"name": "description"}))
+        has_og_tags = bool(soup.find("meta", {"property": "og:title"}))
+        has_structured_data = bool(soup.find("script", {"type": "application/ld+json"}))
+        has_h1 = bool(soup.find("h1"))
+        title = soup.find("title")
+        title_text = title.text if title else ""
+        meta_desc = soup.find("meta", {"name": "description"})
+        meta_desc_text = meta_desc.get("content", "") if meta_desc else ""
+        
+        # Check robots.txt voor AI crawlers
+        robots_url = url.rstrip("/") + "/robots.txt"
+        robots_content = ""
+        try:
+            robots_response = httpx.get(robots_url, timeout=5)
+            robots_content = robots_response.text
+        except:
+            pass
+        
+        gptbot_allowed = "GPTBot" not in robots_content or "Allow: /" in robots_content
+        claudebot_allowed = "ClaudeBot" not in robots_content or "Allow: /" in robots_content
+        
+        # Check llms.txt
+        llms_url = url.rstrip("/") + "/llms.txt"
+        has_llms_txt = False
+        try:
+            llms_response = httpx.get(llms_url, timeout=5)
+            has_llms_txt = llms_response.status_code == 200
+        except:
+            pass
+        
+        # Pagina tekst voor analyse
+        for script in soup(["script", "style"]):
+            script.decompose()
+        page_text = soup.get_text()[:3000]
+        
+        return {
+            "url": url,
+            "title": title_text,
+            "meta_description": meta_desc_text,
+            "has_meta_description": has_meta_description,
+            "has_og_tags": has_og_tags,
+            "has_structured_data": has_structured_data,
+            "has_h1": has_h1,
+            "has_llms_txt": has_llms_txt,
+            "gptbot_allowed": gptbot_allowed,
+            "claudebot_allowed": claudebot_allowed,
+            "page_text": page_text,
+            "status_code": response.status_code,
+        }
+    except Exception as e:
+        return {
+            "url": url,
+            "error": str(e),
+            "title": "",
+            "meta_description": "",
+            "has_meta_description": False,
+            "has_og_tags": False,
+            "has_structured_data": False,
+            "has_h1": False,
+            "has_llms_txt": False,
+            "gptbot_allowed": True,
+            "claudebot_allowed": True,
+            "page_text": "",
+            "status_code": 0,
+        }
+
+@app.get("/")
+def root():
+    return {"status": "GEO API is running", "version": "1.0.0"}
+
+@app.post("/audit/basic")
+async def basic_audit(request: AuditRequest):
+    """Gratis basis GEO audit"""
+    site_data = fetch_website(request.url)
+    
+    prompt = f"""Je bent een GEO (Generative Engine Optimization) expert. Analyseer deze website data en geef een basis GEO audit.
+
+Website: {site_data['url']}
+Title: {site_data['title']}
+Meta Description aanwezig: {site_data['has_meta_description']}
+Meta Description tekst: {site_data['meta_description'][:200] if site_data['meta_description'] else 'Geen'}
+Open Graph tags: {site_data['has_og_tags']}
+Structured Data (JSON-LD): {site_data['has_structured_data']}
+H1 aanwezig: {site_data['has_h1']}
+llms.txt aanwezig: {site_data['has_llms_txt']}
+GPTBot toegestaan: {site_data['gptbot_allowed']}
+ClaudeBot toegestaan: {site_data['claudebot_allowed']}
+Pagina inhoud preview: {site_data['page_text'][:500]}
+
+Geef je antwoord ALLEEN als geldig JSON object zonder markdown of uitleg:
+{{
+  "score": <getal 0-100 gebaseerd op echte data>,
+  "summary": "<één zin samenvatting>",
+  "totalIssues": <aantal verbeterpunten>,
+  "platforms": [
+    {{"name": "ChatGPT", "status": "<goed|matig|slecht>"}},
+    {{"name": "Google Gemini", "status": "<goed|matig|slecht>"}},
+    {{"name": "Perplexity", "status": "<goed|matig|slecht>"}},
+    {{"name": "Bing Copilot", "status": "<goed|matig|slecht>"}}
+  ],
+  "findings": [
+    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}},
+    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}},
+    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}}
+  ]
+}}"""
+
+    message = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    
+    import json
+    result = json.loads(message.content[0].text)
+    result["siteData"] = {
+        "hasStructuredData": site_data["has_structured_data"],
+        "hasLlmsTxt": site_data["has_llms_txt"],
+        "hasMetaDescription": site_data["has_meta_description"],
+        "hasOgTags": site_data["has_og_tags"],
+        "gptbotAllowed": site_data["gptbot_allowed"],
+    }
+    return result
+
+@app.post("/audit/full")
+async def full_audit(request: FullReportRequest):
+    """Volledig betaald GEO rapport"""
+    site_data = fetch_website(request.url)
+    
+    prompt = f"""Je bent een GEO expert. Maak een uitgebreid professioneel GEO audit rapport.
+
+Website: {site_data['url']}
+Title: {site_data['title']}
+Meta Description: {site_data['meta_description']}
+Open Graph tags: {site_data['has_og_tags']}
+Structured Data: {site_data['has_structured_data']}
+llms.txt: {site_data['has_llms_txt']}
+GPTBot toegestaan: {site_data['gptbot_allowed']}
+ClaudeBot toegestaan: {site_data['claudebot_allowed']}
+Pagina inhoud: {site_data['page_text'][:2000]}
+
+Schrijf een volledig rapport in het Nederlands:
+
+# GEO Audit Rapport — {site_data['url']}
+
+## Executive Summary
+[2-3 zinnen]
+
+## GEO Score: [0-100]/100
+
+## Score Breakdown
+- AI Citability & Visibility: [score]/100
+- Brand Authority Signals: [score]/100
+- Content Quality & E-E-A-T: [score]/100
+- Technical Foundations: [score]/100
+- Structured Data: [score]/100
+- Platform Optimization: [score]/100
+
+## AI Platform Readiness
+- ChatGPT: [score]/100
+- Google Gemini: [score]/100
+- Perplexity: [score]/100
+- Bing Copilot: [score]/100
+
+## Kritieke Bevindingen
+[5-7 bevindingen]
+
+## Quick Wins (Deze Week)
+[3-5 acties]
+
+## Verbeteringen Deze Maand
+[3-5 acties]
+
+## Strategische Initiatieven
+[2-3 acties]
+
+## Conclusie
+[Afsluiting met CTA voor AI-syah.nl]"""
+
+    message = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=4000,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    
+    return {"report": message.content[0].text, "url": request.url}
