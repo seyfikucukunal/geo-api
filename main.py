@@ -5,6 +5,8 @@ import httpx
 from bs4 import BeautifulSoup
 import anthropic
 import os
+import json
+from datetime import datetime
 
 app = FastAPI(title="GEO API", version="1.0.0")
 
@@ -26,7 +28,6 @@ class FullReportRequest(BaseModel):
     email: str
 
 def fetch_website(url: str) -> dict:
-    """Haal website inhoud op en analyseer basis elementen"""
     if not url.startswith("http"):
         url = "https://" + url
     
@@ -37,7 +38,6 @@ def fetch_website(url: str) -> dict:
         response = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
         soup = BeautifulSoup(response.text, "html.parser")
         
-        # Basis checks
         has_meta_description = bool(soup.find("meta", {"name": "description"}))
         has_og_tags = bool(soup.find("meta", {"property": "og:title"}))
         has_structured_data = bool(soup.find("script", {"type": "application/ld+json"}))
@@ -47,7 +47,9 @@ def fetch_website(url: str) -> dict:
         meta_desc = soup.find("meta", {"name": "description"})
         meta_desc_text = meta_desc.get("content", "") if meta_desc else ""
         
-        # Check robots.txt voor AI crawlers
+        # Extract brand name from title or domain
+        brand_name = title_text.split("-")[0].strip() if title_text else url.replace("https://", "").replace("www.", "").split(".")[0].capitalize()
+        
         robots_url = url.rstrip("/") + "/robots.txt"
         robots_content = ""
         try:
@@ -59,7 +61,6 @@ def fetch_website(url: str) -> dict:
         gptbot_allowed = "GPTBot" not in robots_content or "Allow: /" in robots_content
         claudebot_allowed = "ClaudeBot" not in robots_content or "Allow: /" in robots_content
         
-        # Check llms.txt
         llms_url = url.rstrip("/") + "/llms.txt"
         has_llms_txt = False
         try:
@@ -68,13 +69,13 @@ def fetch_website(url: str) -> dict:
         except:
             pass
         
-        # Pagina tekst voor analyse
         for script in soup(["script", "style"]):
             script.decompose()
         page_text = soup.get_text()[:3000]
         
         return {
             "url": url,
+            "brand_name": brand_name,
             "title": title_text,
             "meta_description": meta_desc_text,
             "has_meta_description": has_meta_description,
@@ -88,8 +89,10 @@ def fetch_website(url: str) -> dict:
             "status_code": response.status_code,
         }
     except Exception as e:
+        brand_name = url.replace("https://", "").replace("www.", "").split(".")[0].capitalize()
         return {
             "url": url,
+            "brand_name": brand_name,
             "error": str(e),
             "title": "",
             "meta_description": "",
@@ -110,61 +113,84 @@ def root():
 
 @app.post("/audit/basic")
 async def basic_audit(request: AuditRequest):
-    """Gratis basis GEO audit"""
     site_data = fetch_website(request.url)
     
-    prompt = f"""Je bent een GEO (Generative Engine Optimization) expert. Analyseer deze website data en geef een basis GEO audit.
+    prompt = f"""Je bent een GEO (Generative Engine Optimization) expert. Analyseer deze website data en geef een nauwkeurige GEO audit.
 
 Website: {site_data['url']}
+Brand naam: {site_data['brand_name']}
 Title: {site_data['title']}
 Meta Description aanwezig: {site_data['has_meta_description']}
-Meta Description tekst: {site_data['meta_description'][:200] if site_data['meta_description'] else 'Geen'}
+Meta Description: {site_data['meta_description'][:200] if site_data['meta_description'] else 'Geen'}
 Open Graph tags: {site_data['has_og_tags']}
 Structured Data (JSON-LD): {site_data['has_structured_data']}
 H1 aanwezig: {site_data['has_h1']}
 llms.txt aanwezig: {site_data['has_llms_txt']}
 GPTBot toegestaan: {site_data['gptbot_allowed']}
 ClaudeBot toegestaan: {site_data['claudebot_allowed']}
-Pagina inhoud preview: {site_data['page_text'][:500]}
+Pagina inhoud preview: {site_data['page_text'][:1000]}
 
 Geef je antwoord ALLEEN als geldig JSON object zonder markdown of uitleg:
 {{
-  "score": <getal 0-100 gebaseerd op echte data>,
-  "summary": "<één zin samenvatting>",
-  "totalIssues": <aantal verbeterpunten>,
-  "platforms": [
-    {{"name": "ChatGPT", "status": "<goed|matig|slecht>"}},
-    {{"name": "Google Gemini", "status": "<goed|matig|slecht>"}},
-    {{"name": "Perplexity", "status": "<goed|matig|slecht>"}},
-    {{"name": "Bing Copilot", "status": "<goed|matig|slecht>"}}
-  ],
+  "url": "{site_data['url']}",
+  "brand_name": "{site_data['brand_name']}",
+  "date": "{datetime.now().isoformat()}",
+  "geo_score": <getal 0-100 gebaseerd op echte data>,
+  "executive_summary": "<2-3 zinnen samenvatting van de GEO status>",
+  "scores": {{
+    "ai_citability": <0-100>,
+    "brand_authority": <0-100>,
+    "content_eeat": <0-100>,
+    "technical": <0-100>,
+    "schema": <0-100>,
+    "platform_optimization": <0-100>
+  }},
+  "platforms": {{
+    "ChatGPT": <0-100>,
+    "Gemini": <0-100>,
+    "Perplexity": <0-100>,
+    "Bing Copilot": <0-100>,
+    "Google AIO": <0-100>
+  }},
   "findings": [
-    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}},
-    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}},
-    {{"priority": "<kritiek|hoog|medium>", "title": "<titel>", "description": "<uitleg>"}}
+    {{"severity": "critical", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "critical", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "high", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "high", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "medium", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "medium", "title": "<titel>", "description": "<uitleg>"}}
+  ],
+  "quick_wins": [
+    "<actie 1>",
+    "<actie 2>",
+    "<actie 3>"
   ]
-}}"""
+}}
+
+Scoring richtlijnen (wees realistisch en streng):
+- schema score: 0-10 als geen JSON-LD, 10-40 als basis aanwezig
+- ai_citability: laag als geen llms.txt, geen structured data
+- technical: basis punten voor werkende site, aftrekken voor ontbrekende meta
+- geo_score is gewogen gemiddelde: ai_citability*0.25 + brand_authority*0.20 + content_eeat*0.20 + technical*0.15 + schema*0.10 + platform_optimization*0.10"""
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=1024,
+        max_tokens=2000,
         messages=[{"role": "user", "content": prompt}]
     )
     
-    import json
-    result = json.loads(message.content[0].text)
-    result["siteData"] = {
-        "hasStructuredData": site_data["has_structured_data"],
-        "hasLlmsTxt": site_data["has_llms_txt"],
-        "hasMetaDescription": site_data["has_meta_description"],
-        "hasOgTags": site_data["has_og_tags"],
-        "gptbotAllowed": site_data["gptbot_allowed"],
-    }
+    text = message.content[0].text.strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+    text = text.strip()
+    
+    result = json.loads(text)
     return result
 
 @app.post("/audit/full")
 async def full_audit(request: FullReportRequest):
-    """Volledig betaald GEO rapport"""
     site_data = fetch_website(request.url)
     
     prompt = f"""Je bent een GEO expert. Maak een uitgebreid professioneel GEO audit rapport.
