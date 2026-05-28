@@ -6,7 +6,13 @@ from bs4 import BeautifulSoup
 import anthropic
 import os
 import json
+import tempfile
+import base64
+import sys
 from datetime import datetime
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
+from generate_pdf_report import generate_report
 
 app = FastAPI(title="GEO API", version="1.0.0")
 
@@ -47,7 +53,6 @@ def fetch_website(url: str) -> dict:
         meta_desc = soup.find("meta", {"name": "description"})
         meta_desc_text = meta_desc.get("content", "") if meta_desc else ""
         
-        # Extract brand name from title or domain
         brand_name = title_text.split("-")[0].strip() if title_text else url.replace("https://", "").replace("www.", "").split(".")[0].capitalize()
         
         robots_url = url.rstrip("/") + "/robots.txt"
@@ -193,9 +198,10 @@ Scoring richtlijnen (wees realistisch en streng):
 async def full_audit(request: FullReportRequest):
     site_data = fetch_website(request.url)
     
-    prompt = f"""Je bent een GEO expert. Maak een uitgebreid professioneel GEO audit rapport.
+    prompt = f"""Je bent een GEO expert. Analyseer deze website data en geef een uitgebreid GEO audit rapport terug als JSON.
 
 Website: {site_data['url']}
+Brand naam: {site_data['brand_name']}
 Title: {site_data['title']}
 Meta Description: {site_data['meta_description']}
 Open Graph tags: {site_data['has_og_tags']}
@@ -205,43 +211,48 @@ GPTBot toegestaan: {site_data['gptbot_allowed']}
 ClaudeBot toegestaan: {site_data['claudebot_allowed']}
 Pagina inhoud: {site_data['page_text'][:2000]}
 
-Schrijf een volledig rapport in het Nederlands:
-
-# GEO Audit Rapport — {site_data['url']}
-
-## Executive Summary
-[2-3 zinnen]
-
-## GEO Score: [0-100]/100
-
-## Score Breakdown
-- AI Citability & Visibility: [score]/100
-- Brand Authority Signals: [score]/100
-- Content Quality & E-E-A-T: [score]/100
-- Technical Foundations: [score]/100
-- Structured Data: [score]/100
-- Platform Optimization: [score]/100
-
-## AI Platform Readiness
-- ChatGPT: [score]/100
-- Google Gemini: [score]/100
-- Perplexity: [score]/100
-- Bing Copilot: [score]/100
-
-## Kritieke Bevindingen
-[5-7 bevindingen]
-
-## Quick Wins (Deze Week)
-[3-5 acties]
-
-## Verbeteringen Deze Maand
-[3-5 acties]
-
-## Strategische Initiatieven
-[2-3 acties]
-
-## Conclusie
-[Afsluiting met CTA voor AI-syah.nl]"""
+Geef je antwoord ALLEEN als geldig JSON zonder markdown:
+{{
+  "url": "{site_data['url']}",
+  "brand_name": "{site_data['brand_name']}",
+  "date": "{datetime.now().strftime('%Y-%m-%d')}",
+  "geo_score": <0-100>,
+  "executive_summary": "<2-3 zinnen>",
+  "scores": {{
+    "ai_citability": <0-100>,
+    "brand_authority": <0-100>,
+    "content_eeat": <0-100>,
+    "technical": <0-100>,
+    "schema": <0-100>,
+    "platform_optimization": <0-100>
+  }},
+  "platforms": {{
+    "Google AI Overviews": <0-100>,
+    "ChatGPT": <0-100>,
+    "Perplexity": <0-100>,
+    "Gemini": <0-100>,
+    "Bing Copilot": <0-100>
+  }},
+  "findings": [
+    {{"severity": "critical", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "critical", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "high", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "high", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "medium", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "medium", "title": "<titel>", "description": "<uitleg>"}},
+    {{"severity": "low", "title": "<titel>", "description": "<uitleg>"}}
+  ],
+  "quick_wins": ["<actie 1>", "<actie 2>", "<actie 3>", "<actie 4>", "<actie 5>"],
+  "medium_term": ["<actie 1>", "<actie 2>", "<actie 3>"],
+  "strategic": ["<actie 1>", "<actie 2>", "<actie 3>"],
+  "crawler_access": {{
+    "GPTBot": {{"platform": "ChatGPT", "status": "{'Allowed' if site_data['gptbot_allowed'] else 'Blocked'}", "recommendation": "Behoud toestemming"}},
+    "ClaudeBot": {{"platform": "Claude", "status": "{'Allowed' if site_data['claudebot_allowed'] else 'Blocked'}", "recommendation": "Behoud toestemming"}},
+    "PerplexityBot": {{"platform": "Perplexity", "status": "Allowed", "recommendation": "Behoud toestemming"}},
+    "Google-Extended": {{"platform": "Gemini", "status": "Allowed", "recommendation": "Behoud toestemming"}},
+    "Bingbot": {{"platform": "Bing Copilot", "status": "Allowed", "recommendation": "Behoud toestemming"}}
+  }}
+}}"""
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
@@ -249,4 +260,32 @@ Schrijf een volledig rapport in het Nederlands:
         messages=[{"role": "user", "content": prompt}]
     )
     
-    return {"report": message.content[0].text, "url": request.url}
+    text = message.content[0].text.strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+    text = text.strip()
+    
+    report_data = json.loads(text)
+    
+    # Genereer PDF
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+        pdf_path = tmp.name
+    
+    generate_report(report_data, pdf_path)
+    
+    # Lees PDF en converteer naar base64
+    with open(pdf_path, 'rb') as f:
+        pdf_bytes = f.read()
+    
+    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+    
+    # Verwijder tijdelijk bestand
+    os.unlink(pdf_path)
+    
+    return {
+        "report": report_data,
+        "pdf_base64": pdf_base64,
+        "url": request.url
+    }
