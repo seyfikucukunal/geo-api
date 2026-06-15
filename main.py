@@ -179,7 +179,7 @@ Scoring richtlijnen (wees realistisch en streng):
 - geo_score is gewogen gemiddelde: ai_citability*0.25 + brand_authority*0.20 + content_eeat*0.20 + technical*0.15 + schema*0.10 + platform_optimization*0.10"""
 
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=2000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -255,7 +255,7 @@ Geef je antwoord ALLEEN als geldig JSON zonder markdown:
 }}"""
 
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=4000,
         messages=[{"role": "user", "content": prompt}]
     )
