@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>GEO Rapport — FUES</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cyan:    #22d3ee;
+    --bg:      #000000;
+    --card:    #111111;
+    --card2:   #18181b;
+    --border:  #27272a;
+    --text:    #ffffff;
+    --muted:   #a1a1aa;
+  }
+  html { font-size: 13px; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .page { width: 794px; margin: 0 auto; }
+
+  /* COVER */
+  .cover {
+    min-height: 1123px;
+    background: linear-gradient(160deg, #000000 0%, #0a0a0f 50%, #000000 100%);
+    display: flex; flex-direction: column;
+    padding: 0; position: relative; overflow: hidden;
+    page-break-after: always;
+  }
+  .cover-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+  }
+  .cover-header {
+    padding: 36px 52px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cover-brand-name {
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--cyan); font-weight: bold;
+  }
+  .cover-brand-tag {
+    font-size: 10px; letter-spacing: 1px; color: var(--muted);
+    text-transform: uppercase; margin-top: 2px;
+  }
+  .cover-confidential {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--border); padding: 4px 10px;
+  }
+  .cover-divider {
+    margin: 32px 52px; height: 1px;
+    background: linear-gradient(90deg, var(--cyan), transparent);
+  }
+  .cover-body {
+    display: flex; flex-direction: column; padding: 0 52px;
+  }
+  .cover-eyebrow {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  .cover-title {
+    font-size: 56px; line-height: 1.0; color: var(--text);
+    margin-bottom: 6px; font-weight: bold;
+  }
+  .cover-title em { color: var(--cyan); font-style: normal; }
+  .cover-url { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+  .cover-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+  .stat-badge {
+    background: var(--card); border: 1px solid var(--border);
+    border-bottom: 2px solid var(--cyan);
+    border-radius: 8px; padding: 10px 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px;
+  }
+  .stat-val { font-size: 20px; color: var(--cyan); font-weight: bold; }
+  .stat-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; }
+  .cover-score-row {
+    display: flex; align-items: center; gap: 36px;
+    margin-top: 24px; padding-bottom: 0;
+  }
+  .cover-score-label {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .cover-score-value {
+    font-size: 36px; color: #ef4444; margin-bottom: 10px; font-weight: bold;
+  }
+  .cover-score-badge {
+    display: inline-block; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 700;
+    padding: 4px 14px; border-radius: 4px; margin-bottom: 14px;
+  }
+  .cover-score-verdict {
+    font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 340px;
+  }
+  .cover-footer {
+    padding: 20px 52px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cover-footer-name { font-size: 11px; color: var(--text); font-weight: 500; }
+  .cover-footer-contact { font-size: 10px; color: var(--muted); }
+  .cover-footer-date { font-size: 10px; color: var(--muted); }
+
+  /* CONTENT PAGES */
+  .content-page {
+    padding: 48px 52px; min-height: 1123px;
+    page-break-after: always; position: relative;
+    background: var(--bg);
+  }
+  .content-page::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--cyan) 0%, transparent 60%);
+  }
+  .page-label {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 28px; color: var(--text); margin-bottom: 6px; font-weight: bold;
+  }
+  .section-title em { color: var(--cyan); font-style: normal; }
+  .section-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+  .section-divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+  /* EXEC SUMMARY */
+  .exec-summary {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan); border-radius: 8px;
+    padding: 24px 28px; font-size: 13px; line-height: 1.75;
+    color: var(--text); margin-bottom: 28px;
+  }
+
+  /* OVERALL ROW */
+  .overall-row {
+    background: var(--card2); border: 1px solid #ef444440;
+    border-radius: 8px; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .overall-row-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .overall-row-score { font-size: 28px; color: #ef4444; font-weight: bold; }
+  .overall-row-verdict {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: #ef4444; padding: 4px 12px;
+    background: #ef444418; border: 1px solid #ef444440; border-radius: 4px;
+  }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px; margin-top: 8px;
+  }
+
+  /* DIMENSIONS */
+  .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .dim-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .dim-gauge { flex-shrink: 0; }
+  .dim-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .dim-sub { font-size: 10px; color: var(--muted); margin-bottom: 4px; line-height: 1.4; }
+  .dim-meta { font-size: 10px; color: var(--muted); }
+  .dim-weighted { font-size: 10px; color: var(--cyan); }
+
+  /* PLATFORMS */
+  .platform-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 12px; margin-bottom: 28px;
+  }
+  .platform-badge {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 12px; text-align: center;
+  }
+  .platform-score { font-size: 28px; font-weight: bold; margin-bottom: 4px; }
+  .platform-name { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .platform-label {
+    display: inline-block; font-size: 9px; letter-spacing: 1px;
+    text-transform: uppercase; font-weight: 600;
+    padding: 2px 8px; border-radius: 3px;
+  }
+
+  /* CRAWLER TABLE */
+  .crawler-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .crawler-table th {
+    background: var(--card2); color: var(--muted);
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .crawler-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+
+  /* FINDINGS */
+  .finding-summary { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  .finding-card {
+    border-left: 3px solid; background: var(--card);
+    border-top: 1px solid var(--border); border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-radius: 0 6px 6px 0; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .severity-badge {
+    font-size: 9px; letter-spacing: 1.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; text-transform: uppercase; flex-shrink: 0;
+  }
+  .finding-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .finding-body { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* ACTION PLAN */
+  .action-tier { margin-bottom: 28px; }
+  .tier-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+  }
+  .tier-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .tier-badge {
+    font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
+    padding: 3px 12px; border-radius: 3px;
+  }
+  .action-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 14px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 7px; margin-bottom: 8px;
+  }
+  .action-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .action-content { flex: 1; }
+  .action-title {
+    font-size: 12px; font-weight: 600; color: var(--text);
+    margin-bottom: 3px; display: flex; align-items: center; gap: 10px;
+  }
+  .action-time {
+    font-size: 9px; color: var(--muted); background: var(--card2);
+    border: 1px solid var(--border); padding: 1px 7px; border-radius: 3px; font-weight: 400;
+  }
+  .action-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* FOOTER */
+  .page-footer {
+    position: absolute; bottom: 24px; left: 52px; right: 52px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border); padding-top: 12px;
+    font-size: 9px; color: var(--muted);
+  }
+  .footer-brand { color: var(--cyan); font-weight: 600; }
+
+  /* GLOSSARY */
+  .methodology-text {
+    font-size: 12px; color: var(--muted); line-height: 1.75;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px; margin-bottom: 20px;
+  }
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .glossary-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px;
+  }
+  .glossary-term { font-size: 11px; font-weight: 600; color: var(--cyan); margin-bottom: 2px; }
+  .glossary-def { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  @media print {
+    .cover, .content-page { page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-line"></div>
+  <div class="cover-header">
+    <div class="cover-brand">
+      <div class="cover-brand-name">AI-syah.nl</div>
+      <div class="cover-brand-tag">GEO Audit</div>
+    </div>
+    <div class="cover-confidential">Vertrouwelijk</div>
+  </div>
+  <div class="cover-divider"></div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">GEO Visibility Rapport</div>
+    <div class="cover-title">FUES</div>
+    <div class="cover-url">fues.nl · May 29, 2026</div>
+    <div class="cover-stats"><div class="stat-badge"><span class="stat-val">7</span><span class="stat-lbl">Certificeringen</span></div><div class="stat-badge"><span class="stat-val">6+</span><span class="stat-lbl">Jaar Actief</span></div><div class="stat-badge"><span class="stat-val">2</span><span class="stat-lbl">Kritieke Issues</span></div><div class="stat-badge"><span class="stat-val">28</span><span class="stat-lbl">GEO Score</span></div></div>
+    <div class="cover-score-row">
+      <div class="cover-score-gauge">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle cx="90" cy="90" r="76"
+        fill="none" stroke="#27272a" stroke-width="10"
+        stroke-dasharray="358.1 119.4"
+        stroke-dashoffset="-119.4"
+        stroke-linecap="round"/>
+      <circle cx="90" cy="90" r="76"
+        fill="none" stroke="#ef4444" stroke-width="10"
+        stroke-dasharray="100.3 377.2"
+        stroke-dashoffset="-119.4"
+        stroke-linecap="round"/>
+      <text x="90" y="84" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="45" fill="#ef4444" font-weight="bold">28</text>
+      <text x="90" y="104" text-anchor="middle"
+        font-family="Arial, sans-serif" font-size="11"
+        fill="#a1a1aa" letter-spacing="1">/ 100</text>
+    </svg></div>
+      <div class="cover-score-text">
+        <div class="cover-score-label">Overall GEO Score</div>
+        <div class="cover-score-value">28 / 100</div>
+        <div class="cover-score-badge" style="color:#ef4444;background:#ef444418;border:1px solid #ef444440">CRITICAL</div>
+        <div class="cover-score-verdict">Technisch sterk bedrijf met uitstekende certificeringen — maar AI-zoekmachines zien het grote plaatje nog niet.</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-left">
+      <div class="cover-footer-name">AI-syah.nl</div>
+      <div class="cover-footer-contact">ai-syah.nl</div>
+    </div>
+    <div class="cover-footer-date">May 29, 2026</div>
+  </div>
+</div>
+
+<!-- PAGE 2: EXECUTIVE SUMMARY + SCORES -->
+<div class="content-page">
+  <div class="page-label">Executive Summary</div>
+  <div class="section-title">Het <em>Probleem</em></div>
+  <div class="section-sub">fues.nl — Audit uitgevoerd May 29, 2026</div>
+  <div class="exec-summary">FUES heeft een <strong>sterke certificeringenportefeuille</strong> inclusief Safety Culture Ladder Trede 3 en CKB 2023 — uitzonderlijk voor een 6 jaar jong MKB-bedrijf. Toch scoort de website kritiek laag op GEO: geen llms.txt, geen structured data en geen AI-crawler toestemmingen betekenen dat ChatGPT, Gemini en Perplexity het bedrijf vrijwel niet kunnen vinden of citeren. De autoriteit bestaat al — ze moet alleen <strong>machine-leesbaar</strong> worden gemaakt.</div>
+  <div class="overall-row">
+    <div class="overall-row-label">Overall GEO Score</div>
+    <div class="overall-row-score">28 / 100</div>
+    <div class="overall-row-verdict">CRITICAL</div>
+  </div>
+  <div class="section-divider"></div>
+  <div class="page-label">Score Breakdown</div>
+  <div class="section-title"><em>Zes</em> Dimensies</div>
+  <div class="section-sub">Elke gewogen dimensie draagt bij aan je totale GEO score.</div>
+  <div class="dim-grid">
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#ef4444" stroke-width="6"
+        stroke-dasharray="34.3 129.1"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#ef4444" font-weight="bold">28</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">AI Citability & Visibility</div>
+            <div class="dim-sub">Kunnen AI-platforms je content vinden en citeren?</div>
+            <div class="dim-meta">25% weight <div class="dim-weighted">7.0 pts</div></div>
+          </div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#ef4444" stroke-width="6"
+        stroke-dasharray="30.6 132.7"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#ef4444" font-weight="bold">25</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">Brand Authority Signals</div>
+            <div class="dim-sub">Externe signalen die valideren wie je bent</div>
+            <div class="dim-meta">20% weight <div class="dim-weighted">5.0 pts</div></div>
+          </div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#ef4444" stroke-width="6"
+        stroke-dasharray="42.9 120.5"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#ef4444" font-weight="bold">35</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">Content Quality & E-E-A-T</div>
+            <div class="dim-sub">Diepgang, expertise en betrouwbaarheid van content</div>
+            <div class="dim-meta">20% weight <div class="dim-weighted">7.0 pts</div></div>
+          </div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#f97316" stroke-width="6"
+        stroke-dasharray="49.0 114.4"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#f97316" font-weight="bold">40</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">Technical Foundations</div>
+            <div class="dim-sub">Server-side rendering, sitemaps, crawlbaarheid</div>
+            <div class="dim-meta">15% weight <div class="dim-weighted">6.0 pts</div></div>
+          </div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#ef4444" stroke-width="6"
+        stroke-dasharray="3.7 159.7"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#ef4444" font-weight="bold">3</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">Schema & Structured Data</div>
+            <div class="dim-sub">Schema markup voor gestructureerde feiten</div>
+            <div class="dim-meta">10% weight <div class="dim-weighted">0.3 pts</div></div>
+          </div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-gauge">
+    <svg width="68" height="68" viewBox="0 0 68 68">
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#27272a" stroke-width="6"
+        stroke-dasharray="122.5 40.8"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="26"
+        fill="none" stroke="#ef4444" stroke-width="6"
+        stroke-dasharray="27.0 136.4"
+        stroke-dashoffset="-40.8"
+        stroke-linecap="round"/>
+      <text x="34" y="39" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="13" fill="#ef4444" font-weight="bold">22</text>
+    </svg></div>
+          <div class="dim-info">
+            <div class="dim-name">Platform Optimization</div>
+            <div class="dim-sub">Aanwezigheid op platforms die AI indexeert</div>
+            <div class="dim-meta">10% weight <div class="dim-weighted">2.2 pts</div></div>
+          </div>
+        </div></div>
+  <div class="section-divider"></div>
+  <div class="page-label">Visueel Overzicht</div>
+  <div class="chart-wrap"><svg width="660" height="220" viewBox="0 0 660 220">
+      
+        <rect x="0" y="4" width="660" height="28"
+          fill="#1a1a1a" rx="0"/>
+        <text x="180" y="22" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">AI Citability & Visibility</text>
+        <rect x="190" y="6" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="6" width="114" height="24"
+          fill="#ef4444" rx="4" opacity="0.9"/>
+        <text x="312" y="22"
+          font-family="Arial, sans-serif" font-size="11" fill="#ef4444"
+          font-weight="bold">28</text>
+        <rect x="0" y="40" width="660" height="28"
+          fill="#111111" rx="0"/>
+        <text x="180" y="58" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">Brand Authority Signals</text>
+        <rect x="190" y="42" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="42" width="102" height="24"
+          fill="#ef4444" rx="4" opacity="0.9"/>
+        <text x="300" y="58"
+          font-family="Arial, sans-serif" font-size="11" fill="#ef4444"
+          font-weight="bold">25</text>
+        <rect x="0" y="76" width="660" height="28"
+          fill="#1a1a1a" rx="0"/>
+        <text x="180" y="94" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">Content Quality & E-E-A-T</text>
+        <rect x="190" y="78" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="78" width="143" height="24"
+          fill="#ef4444" rx="4" opacity="0.9"/>
+        <text x="341" y="94"
+          font-family="Arial, sans-serif" font-size="11" fill="#ef4444"
+          font-weight="bold">35</text>
+        <rect x="0" y="112" width="660" height="28"
+          fill="#111111" rx="0"/>
+        <text x="180" y="130" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">Technical Foundations</text>
+        <rect x="190" y="114" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="114" width="164" height="24"
+          fill="#f97316" rx="4" opacity="0.9"/>
+        <text x="362" y="130"
+          font-family="Arial, sans-serif" font-size="11" fill="#f97316"
+          font-weight="bold">40</text>
+        <rect x="0" y="148" width="660" height="28"
+          fill="#1a1a1a" rx="0"/>
+        <text x="180" y="166" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">Schema & Structured Data</text>
+        <rect x="190" y="150" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="150" width="12" height="24"
+          fill="#ef4444" rx="4" opacity="0.9"/>
+        <text x="210" y="166"
+          font-family="Arial, sans-serif" font-size="11" fill="#ef4444"
+          font-weight="bold">3</text>
+        <rect x="0" y="184" width="660" height="28"
+          fill="#111111" rx="0"/>
+        <text x="180" y="202" font-family="Arial, sans-serif"
+          font-size="10" fill="#a1a1aa" text-anchor="end">Platform Optimization</text>
+        <rect x="190" y="186" width="410" height="24"
+          fill="#27272a" rx="4"/>
+        <rect x="190" y="186" width="90" height="24"
+          fill="#ef4444" rx="4" opacity="0.9"/>
+        <text x="288" y="202"
+          font-family="Arial, sans-serif" font-size="11" fill="#ef4444"
+          font-weight="bold">22</text>
+    </svg></div>
+  <div class="page-footer">
+    <span class="footer-brand">AI-syah.nl</span>
+    <span>ai-syah.nl</span>
+    <span>Vertrouwelijk · May 29, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 3: AI READINESS -->
+<div class="content-page">
+  <div class="page-label">AI Gereedheid</div>
+  <div class="section-title">Platform <em>Scores</em></div>
+  <div class="section-sub">Hoe waarschijnlijk het is dat elk AI-platform jouw content citeert. Onder 50 betekent significante barrières.</div>
+  <div class="platform-grid">
+    <div class="platform-badge" style="border-color:#ef444435">
+      <div class="platform-score" style="color:#ef4444">35</div>
+      <div class="platform-name">Google AI Overviews</div>
+      <div class="platform-label" style="color:#ef4444;background:#ef444418;border:1px solid #ef444435">CRITICAL</div>
+    </div>
+    <div class="platform-badge" style="border-color:#ef444435">
+      <div class="platform-score" style="color:#ef4444">25</div>
+      <div class="platform-name">ChatGPT</div>
+      <div class="platform-label" style="color:#ef4444;background:#ef444418;border:1px solid #ef444435">CRITICAL</div>
+    </div>
+    <div class="platform-badge" style="border-color:#ef444435">
+      <div class="platform-score" style="color:#ef4444">28</div>
+      <div class="platform-name">Perplexity</div>
+      <div class="platform-label" style="color:#ef4444;background:#ef444418;border:1px solid #ef444435">CRITICAL</div>
+    </div>
+    <div class="platform-badge" style="border-color:#ef444435">
+      <div class="platform-score" style="color:#ef4444">35</div>
+      <div class="platform-name">Gemini</div>
+      <div class="platform-label" style="color:#ef4444;background:#ef444418;border:1px solid #ef444435">CRITICAL</div>
+    </div>
+    <div class="platform-badge" style="border-color:#ef444435">
+      <div class="platform-score" style="color:#ef4444">25</div>
+      <div class="platform-name">Bing Copilot</div>
+      <div class="platform-label" style="color:#ef4444;background:#ef444418;border:1px solid #ef444435">CRITICAL</div>
+    </div></div>
+  <div class="section-divider"></div>
+  <div class="page-label">Crawler Toegang</div>
+  <div class="section-title">Crawler <em>Status</em></div>
+  <div class="section-sub">Expliciete crawler-toestemmingen signaleren AI-vriendelijkheid.</div>
+  <table class="crawler-table">
+    <thead><tr><th>Crawler</th><th>Platform</th><th>Status</th><th>Aanbeveling</th></tr></thead>
+    <tbody>
+    <tr>
+      <td>GPTBot</td>
+      <td style="color:#a1a1aa">ChatGPT / OpenAI</td>
+      <td><span style="color:#eab308">●</span> Not Mentioned</td>
+      <td style="color:#a1a1aa;font-size:11px">Voeg expliciete Allow toe</td>
+    </tr>
+    <tr>
+      <td>ClaudeBot</td>
+      <td style="color:#a1a1aa">Claude / Anthropic</td>
+      <td><span style="color:#eab308">●</span> Not Mentioned</td>
+      <td style="color:#a1a1aa;font-size:11px">Voeg expliciete Allow toe</td>
+    </tr>
+    <tr>
+      <td>PerplexityBot</td>
+      <td style="color:#a1a1aa">Perplexity AI</td>
+      <td><span style="color:#eab308">●</span> Not Mentioned</td>
+      <td style="color:#a1a1aa;font-size:11px">Voeg expliciete Allow toe</td>
+    </tr>
+    <tr>
+      <td>Google-Extended</td>
+      <td style="color:#a1a1aa">Google Gemini</td>
+      <td><span style="color:#eab308">●</span> Not Mentioned</td>
+      <td style="color:#a1a1aa;font-size:11px">Voeg expliciete Allow toe</td>
+    </tr>
+    <tr>
+      <td>Googlebot</td>
+      <td style="color:#a1a1aa">Google Search</td>
+      <td><span style="color:#22c55e">●</span> Allowed</td>
+      <td style="color:#a1a1aa;font-size:11px">Behoud toestemming</td>
+    </tr></tbody>
+  </table>
+  <div class="page-footer">
+    <span class="footer-brand">AI-syah.nl</span>
+    <span>ai-syah.nl</span>
+    <span>Vertrouwelijk · May 29, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 4: BEVINDINGEN -->
+<div class="content-page">
+  <div class="page-label">Bevindingen</div>
+  <div class="section-title">Wat We <em>Vonden</em></div>
+  <div class="finding-summary">6 problemen gevonden. <span style="color:#ef4444">2 CRITICAL</span> · <span style="color:#f97316">2 HIGH</span> · <span style="color:#eab308">2 MEDIUM</span></div>
+  
+    <div class="finding-card" style="border-left-color:#ef4444">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#ef444420;color:#ef4444;border:1px solid #ef444440">CRITICAL</span>
+        <span class="finding-title">Geen llms.txt bestand</span>
+      </div>
+      <p class="finding-body">Er is geen /llms.txt bestand. AI-systemen hebben geen gestructureerde samenvatting van het bedrijf. 30 minuten werk met directe AI-zichtbaarheidsimpact.</p>
+    </div>
+    <div class="finding-card" style="border-left-color:#ef4444">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#ef444420;color:#ef4444;border:1px solid #ef444440">CRITICAL</span>
+        <span class="finding-title">Geen Schema Markup</span>
+      </div>
+      <p class="finding-body">Geen JSON-LD structured data gevonden. AI-modellen kunnen entiteiten, diensten en certificeringen niet herkennen.</p>
+    </div>
+    <div class="finding-card" style="border-left-color:#f97316">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#f9731620;color:#f97316;border:1px solid #f9731640">HIGH</span>
+        <span class="finding-title">AI Crawlers niet in robots.txt</span>
+      </div>
+      <p class="finding-body">GPTBot, ClaudeBot, PerplexityBot niet vermeld. Expliciete Allow-regels signaleren AI-vriendelijkheid.</p>
+    </div>
+    <div class="finding-card" style="border-left-color:#f97316">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#f9731620;color:#f97316;border:1px solid #f9731640">HIGH</span>
+        <span class="finding-title">Geen Open Graph tags</span>
+      </div>
+      <p class="finding-body">Geen OG tags waardoor sociale deling en AI-preview generatie beperkt is.</p>
+    </div>
+    <div class="finding-card" style="border-left-color:#eab308">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#eab30820;color:#eab308;border:1px solid #eab30840">MEDIUM</span>
+        <span class="finding-title">Certificeringen niet machine-leesbaar</span>
+      </div>
+      <p class="finding-body">7 industrie-certificeringen zijn alleen als tekst zichtbaar — nergens als structured data. Enorme gemiste kans.</p>
+    </div>
+    <div class="finding-card" style="border-left-color:#eab308">
+      <div class="finding-header">
+        <span class="severity-badge" style="background:#eab30820;color:#eab308;border:1px solid #eab30840">MEDIUM</span>
+        <span class="finding-title">Beperkte content diepte</span>
+      </div>
+      <p class="finding-body">Pagina's bevatten te weinig diepgaande content voor AI citability (target: 134-167 woorden per blok).</p>
+    </div>
+  <div class="page-footer">
+    <span class="footer-brand">AI-syah.nl</span>
+    <span>ai-syah.nl</span>
+    <span>Vertrouwelijk · May 29, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 5: ACTIEPLAN -->
+<div class="content-page">
+  <div class="page-label">Actieplan</div>
+  <div class="section-title">Wat Nu <em>Te Doen</em></div>
+  <div class="section-sub">Geprioriteerd op impact en inspanning.</div>
+  <div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Week · Quick Wins</span><span class="tier-badge" style="color:#22d3ee;background:#22d3ee18;border:1px solid #22d3ee40">Direct Uitvoerbaar</span></div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">1</div>
+      <div class="action-content">
+        <div class="action-title">Maak /llms.txt aan<span class="action-time">30 min</span></div>
+        <div class="action-desc">Beschrijf het bedrijf, diensten, certificeringen en contactgegevens. Directe AI-zichtbaarheidsboost.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">2</div>
+      <div class="action-content">
+        <div class="action-title">Update robots.txt met AI crawlers<span class="action-time">15 min</span></div>
+        <div class="action-desc">Voeg expliciete Allow toe voor GPTBot, ClaudeBot, PerplexityBot en Google-Extended.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">3</div>
+      <div class="action-content">
+        <div class="action-title">Voeg LocalBusiness JSON-LD toe<span class="action-time">1 uur</span></div>
+        <div class="action-desc">Structured data op de homepage met bedrijfsnaam, adres, telefoon, KvK en certificeringen.</div>
+      </div>
+    </div></div>
+  <div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Maand</span><span class="tier-badge" style="color:#22d3ee;background:#22d3ee18;border:1px solid #22d3ee40">Content + Autoriteit</span></div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">1</div>
+      <div class="action-content">
+        <div class="action-title">Certificeringen als structured data</div>
+        <div class="action-desc">Implementeer schema markup voor alle 7 certificeringen. Maakt ze machine-leesbaar voor AI.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">2</div>
+      <div class="action-content">
+        <div class="action-title">FAQ pagina met FAQPage schema</div>
+        <div class="action-desc">Veelgestelde vragen over diensten met schema markup. Voedt Google AI Overviews direct.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#22d3ee20;color:#22d3ee;border:1px solid #22d3ee40">3</div>
+      <div class="action-content">
+        <div class="action-title">Open Graph tags toevoegen</div>
+        <div class="action-desc">OG titel, beschrijving en afbeelding op alle pagina's voor betere AI-preview generatie.</div>
+      </div>
+    </div></div>
+  <div class="action-tier"><div class="tier-header"><span class="tier-label">Dit Kwartaal · Strategisch</span><span class="tier-badge" style="color:#9B59B6;background:#9B59B618;border:1px solid #9B59B640">Lange Termijn</span></div>
+    <div class="action-item">
+      <div class="action-num" style="background:#9B59B620;color:#9B59B6;border:1px solid #9B59B640">1</div>
+      <div class="action-content">
+        <div class="action-title">Wikidata entiteit aanmaken</div>
+        <div class="action-desc">Voeg FUES toe als entiteit met certificeringen, oprichtingsdatum en industrie. Primaire kennisbron voor AI.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#9B59B620;color:#9B59B6;border:1px solid #9B59B640">2</div>
+      <div class="action-content">
+        <div class="action-title">Thought leadership content</div>
+        <div class="action-desc">Publiceer artikelen over veiligheidsmanagement en certificeringen. Bouwt AI-citeerbare autoriteit.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num" style="background:#9B59B620;color:#9B59B6;border:1px solid #9B59B640">3</div>
+      <div class="action-content">
+        <div class="action-title">Review pipeline opzetten</div>
+        <div class="action-desc">Klantrecensies op Google Business en Trustpilot. AI-platforms indexeren reviews voor autoriteitsvalidatie.</div>
+      </div>
+    </div></div>
+  <div class="page-footer">
+    <span class="footer-brand">AI-syah.nl</span>
+    <span>ai-syah.nl</span>
+    <span>Vertrouwelijk · May 29, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 6: APPENDIX -->
+<div class="content-page">
+  <div class="page-label">Appendix</div>
+  <div class="section-title"><em>Methodologie</em></div>
+  <div class="methodology-text">Deze GEO audit analyseerde fues.nl op zes gewogen dimensies: AI Citability & Visibility (25%), Brand Authority Signals (20%), Content Quality & E-E-A-T (20%), Technical Foundations (15%), Schema & Structured Data (10%), en Platform Optimization (10%). Platforms beoordeeld: Google AI Overviews, ChatGPT Web Search, Perplexity AI, Google Gemini, Bing Copilot. Audit datum: May 29, 2026.</div>
+  <div class="section-divider"></div>
+  <div class="glossary-grid">
+    <div class="glossary-item"><div class="glossary-term">GEO</div><div class="glossary-def">Generative Engine Optimization — optimaliseren voor AI-citatie</div></div>
+    <div class="glossary-item"><div class="glossary-term">E-E-A-T</div><div class="glossary-def">Experience, Expertise, Authoritativeness, Trustworthiness</div></div>
+    <div class="glossary-item"><div class="glossary-term">llms.txt</div><div class="glossary-def">Machine-leesbaar bestand voor AI-begrip van de site</div></div>
+    <div class="glossary-item"><div class="glossary-term">JSON-LD</div><div class="glossary-def">Gestructureerde data voor zoekmachines en AI</div></div>
+    <div class="glossary-item"><div class="glossary-term">Schema.org</div><div class="glossary-def">Vocabulaire voor gestructureerde data</div></div>
+    <div class="glossary-item"><div class="glossary-term">IndexNow</div><div class="glossary-def">Protocol voor directe zoekmachine-notificatie</div></div>
+  </div>
+  <div style="text-align:center;padding:20px 0;font-size:10px;color:var(--muted);">
+    © 2026 AI-syah.nl · ai-syah.nl · Vertrouwelijk
+  </div>
+  <div class="page-footer">
+    <span class="footer-brand">AI-syah.nl</span>
+    <span>ai-syah.nl</span>
+    <span>Vertrouwelijk · May 29, 2026</span>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

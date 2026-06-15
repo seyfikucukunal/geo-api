@@ -1,0 +1,79 @@
+{
+  "company_name": "FUES",
+  "url": "fues.nl",
+  "audit_date": "May 29, 2026",
+  "overall_score": 28,
+  "company_tagline": "Technisch sterk bedrijf met uitstekende certificeringen — maar AI-zoekmachines zien het grote plaatje nog niet.",
+  "company_profile": {
+    "founded": "2018",
+    "location": "Nederland",
+    "industry": "Industriële Veiligheid & Certificering",
+    "description": "FUES is een gespecialiseerd veiligheidsbedrijf dat organisaties helpt bij het behalen en onderhouden van industrie-certificeringen, waaronder de Safety Culture Ladder en CKB. Met meer dan 6 jaar ervaring in de procesindustrie en bouw bedient FUES opdrachtgevers die de hoogste veiligheidsnormen hanteren.",
+    "strengths": [
+      "Safety Culture Ladder Trede 3 gecertificeerd",
+      "CKB 2023 gecertificeerd",
+      "7 industrie-certificeringen in totaal",
+      "6+ jaar actief in de markt"
+    ],
+    "critical_gaps": [
+      "Geen llms.txt — AI-systemen kunnen het bedrijf niet samenvatten",
+      "Geen schema markup — diensten en certificeringen onzichtbaar voor AI",
+      "AI-crawlers niet geconfigureerd in robots.txt"
+    ]
+  },
+  "stats": [
+    {"value": "7",  "label": "Certificeringen"},
+    {"value": "6+", "label": "Jaar Actief"},
+    {"value": "2",  "label": "Kritieke Issues"},
+    {"value": "28", "label": "GEO Score"}
+  ],
+  "executive_summary": "FUES heeft een <strong>sterke certificeringenportefeuille</strong> inclusief Safety Culture Ladder Trede 3 en CKB 2023 — uitzonderlijk voor een 6 jaar jong MKB-bedrijf. Toch scoort de website kritiek laag op GEO: geen llms.txt, geen structured data en geen AI-crawler toestemmingen betekenen dat ChatGPT, Gemini en Perplexity het bedrijf vrijwel niet kunnen vinden of citeren. De autoriteit bestaat al — ze moet alleen <strong>machine-leesbaar</strong> worden gemaakt.",
+  "dimensions": [
+    {"name": "AI Citability & Visibility", "description": "Kunnen AI-platforms je content vinden en citeren?", "score": 28, "weight": "25%", "weighted_score": "7.0"},
+    {"name": "Brand Authority Signals",    "description": "Externe signalen die valideren wie je bent",         "score": 25, "weight": "20%", "weighted_score": "5.0"},
+    {"name": "Content Quality & E-E-A-T", "description": "Diepgang, expertise en betrouwbaarheid van content", "score": 35, "weight": "20%", "weighted_score": "7.0"},
+    {"name": "Technical Foundations",     "description": "Server-side rendering, sitemaps, crawlbaarheid",      "score": 40, "weight": "15%", "weighted_score": "6.0"},
+    {"name": "Schema & Structured Data",  "description": "Schema markup voor gestructureerde feiten",           "score": 3,  "weight": "10%", "weighted_score": "0.3"},
+    {"name": "Platform Optimization",     "description": "Aanwezigheid op platforms die AI indexeert",          "score": 22, "weight": "10%", "weighted_score": "2.2"}
+  ],
+  "platforms": [
+    {"name": "Google AI Overviews", "score": 35},
+    {"name": "ChatGPT",             "score": 25},
+    {"name": "Perplexity",          "score": 28},
+    {"name": "Gemini",              "score": 35},
+    {"name": "Bing Copilot",        "score": 25}
+  ],
+  "crawlers": [
+    {"name": "GPTBot",          "platform": "ChatGPT / OpenAI",   "status": "Not Mentioned", "recommendation": "Voeg expliciete Allow toe"},
+    {"name": "ClaudeBot",       "platform": "Claude / Anthropic", "status": "Not Mentioned", "recommendation": "Voeg expliciete Allow toe"},
+    {"name": "PerplexityBot",   "platform": "Perplexity AI",      "status": "Not Mentioned", "recommendation": "Voeg expliciete Allow toe"},
+    {"name": "Google-Extended", "platform": "Google Gemini",      "status": "Not Mentioned", "recommendation": "Voeg expliciete Allow toe"},
+    {"name": "Googlebot",       "platform": "Google Search",      "status": "Allowed",       "recommendation": "Behoud toestemming"}
+  ],
+  "findings": [
+    {"severity": "CRITICAL", "title": "Geen llms.txt bestand",                 "description": "Er is geen /llms.txt bestand. AI-systemen hebben geen gestructureerde samenvatting van het bedrijf. 30 minuten werk met directe AI-zichtbaarheidsimpact."},
+    {"severity": "CRITICAL", "title": "Geen Schema Markup",                    "description": "Geen JSON-LD structured data gevonden. AI-modellen kunnen entiteiten, diensten en certificeringen niet herkennen."},
+    {"severity": "HIGH",     "title": "AI Crawlers niet in robots.txt",        "description": "GPTBot, ClaudeBot, PerplexityBot niet vermeld. Expliciete Allow-regels signaleren AI-vriendelijkheid."},
+    {"severity": "HIGH",     "title": "Geen Open Graph tags",                  "description": "Geen OG tags waardoor sociale deling en AI-preview generatie beperkt is."},
+    {"severity": "MEDIUM",   "title": "Certificeringen niet machine-leesbaar", "description": "7 industrie-certificeringen zijn alleen als tekst zichtbaar — nergens als structured data. Enorme gemiste kans."},
+    {"severity": "MEDIUM",   "title": "Beperkte content diepte",               "description": "Pagina's bevatten te weinig diepgaande content voor AI citability (target: 134-167 woorden per blok)."}
+  ],
+  "action_plan": {
+    "quick_wins": [
+      {"title": "Maak /llms.txt aan",                "description": "Beschrijf het bedrijf, diensten, certificeringen en contactgegevens. Directe AI-zichtbaarheidsboost.", "time_estimate": "30 min"},
+      {"title": "Update robots.txt met AI crawlers", "description": "Voeg expliciete Allow toe voor GPTBot, ClaudeBot, PerplexityBot en Google-Extended.",                  "time_estimate": "15 min"},
+      {"title": "Voeg LocalBusiness JSON-LD toe",    "description": "Structured data op de homepage met bedrijfsnaam, adres, telefoon, KvK en certificeringen.",            "time_estimate": "1 uur"}
+    ],
+    "medium_term": [
+      {"title": "Certificeringen als structured data", "description": "Implementeer schema markup voor alle 7 certificeringen. Maakt ze machine-leesbaar voor AI."},
+      {"title": "FAQ pagina met FAQPage schema",       "description": "Veelgestelde vragen over diensten met schema markup. Voedt Google AI Overviews direct."},
+      {"title": "Open Graph tags toevoegen",           "description": "OG titel, beschrijving en afbeelding op alle pagina's voor betere AI-preview generatie."}
+    ],
+    "strategic": [
+      {"title": "Wikidata entiteit aanmaken",  "description": "Voeg FUES toe als entiteit met certificeringen, oprichtingsdatum en industrie. Primaire kennisbron voor AI."},
+      {"title": "Thought leadership content", "description": "Publiceer artikelen over veiligheidsmanagement en certificeringen. Bouwt AI-citeerbare autoriteit."},
+      {"title": "Review pipeline opzetten",   "description": "Klantrecensies op Google Business en Trustpilot. AI-platforms indexeren reviews voor autoriteitsvalidatie."}
+    ]
+  },
+  "methodology": "Deze GEO audit analyseerde fues.nl op zes gewogen dimensies: AI Citability & Visibility (25%), Brand Authority Signals (20%), Content Quality & E-E-A-T (20%), Technical Foundations (15%), Schema & Structured Data (10%), en Platform Optimization (10%). Platforms beoordeeld: Google AI Overviews, ChatGPT Web Search, Perplexity AI, Google Gemini, Bing Copilot. Audit datum: May 29, 2026."
+}

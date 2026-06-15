@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
-from generate_pdf_report import generate_report
+from beautifier import generate_html, generate_pdf, BRAND
 
 app = FastAPI(title="GEO API", version="1.0.0")
 
@@ -268,22 +268,76 @@ Geef je antwoord ALLEEN als geldig JSON zonder markdown:
     text = text.strip()
     
     report_data = json.loads(text)
-    
-    # Genereer PDF
+
+    # Zet Claude JSON om naar beautifier data formaat
+    scores = report_data.get("scores", {})
+    platforms_raw = report_data.get("platforms", {})
+    crawlers_raw = report_data.get("crawler_access", {})
+    quick_wins = report_data.get("quick_wins", [])
+    medium_term = report_data.get("medium_term", [])
+    strategic = report_data.get("strategic", [])
+    findings_raw = report_data.get("findings", [])
+    overall = report_data.get("geo_score", 0)
+
+    beautifier_data = {
+        "company_name": report_data.get("brand_name", site_data["brand_name"]),
+        "url": request.url,
+        "audit_date": datetime.now().strftime("%B %d, %Y"),
+        "overall_score": overall,
+        "company_tagline": report_data.get("executive_summary", "")[:120],
+        "stats": [
+            {"value": str(overall), "label": "GEO Score"},
+            {"value": str(len([f for f in findings_raw if f.get("severity","").lower() in ["critical","high"]])), "label": "Kritieke Issues"},
+            {"value": str(len(quick_wins)), "label": "Quick Wins"},
+            {"value": datetime.now().strftime("%Y"), "label": "Audit Jaar"},
+        ],
+        "executive_summary": report_data.get("executive_summary", ""),
+        "company_profile": {
+            "description": report_data.get("executive_summary", ""),
+            "founded": "",
+            "location": "",
+            "industry": "",
+            "strengths": [],
+            "critical_gaps": [],
+        },
+        "dimensions": [
+            {"name": "AI Citability & Visibility",  "description": "Kunnen AI-platforms je content vinden?", "score": scores.get("ai_citability", 0),        "weight": "25%", "weighted_score": str(round(scores.get("ai_citability", 0) * 0.25, 1))},
+            {"name": "Brand Authority Signals",      "description": "Externe signalen die valideren wie je bent", "score": scores.get("brand_authority", 0),  "weight": "20%", "weighted_score": str(round(scores.get("brand_authority", 0) * 0.20, 1))},
+            {"name": "Content Quality & E-E-A-T",   "description": "Diepgang en betrouwbaarheid van content",   "score": scores.get("content_eeat", 0),       "weight": "20%", "weighted_score": str(round(scores.get("content_eeat", 0) * 0.20, 1))},
+            {"name": "Technical Foundations",        "description": "Technische basis voor AI-toegankelijkheid", "score": scores.get("technical", 0),          "weight": "15%", "weighted_score": str(round(scores.get("technical", 0) * 0.15, 1))},
+            {"name": "Schema & Structured Data",     "description": "Gestructureerde data voor zoekmachines",   "score": scores.get("schema", 0),             "weight": "10%", "weighted_score": str(round(scores.get("schema", 0) * 0.10, 1))},
+            {"name": "Platform Optimization",        "description": "Optimalisatie per AI-platform",            "score": scores.get("platform_optimization", 0), "weight": "10%", "weighted_score": str(round(scores.get("platform_optimization", 0) * 0.10, 1))},
+        ],
+        "platforms": [{"name": k, "score": v} for k, v in platforms_raw.items()],
+        "crawlers": [
+            {"name": k, "platform": v.get("platform",""), "status": v.get("status",""), "recommendation": v.get("recommendation","")}
+            for k, v in crawlers_raw.items()
+        ],
+        "findings": [
+            {"severity": f.get("severity","LOW").upper(), "title": f.get("title",""), "description": f.get("description","")}
+            for f in findings_raw
+        ],
+        "action_plan": {
+            "quick_wins":  [{"title": a, "description": "", "time_estimate": "30 min"} if isinstance(a, str) else a for a in quick_wins],
+            "medium_term": [{"title": a, "description": "", "time_estimate": "1 week"} if isinstance(a, str) else a for a in medium_term],
+            "strategic":   [{"title": a, "description": "", "time_estimate": "1 maand"} if isinstance(a, str) else a for a in strategic],
+        },
+        "methodology": f"Deze GEO audit analyseerde {request.url} op zes gewogen dimensies.",
+    }
+
+    # Genereer PDF via beautifier
     with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
         pdf_path = tmp.name
-    
-    generate_report(report_data, pdf_path)
-    
-    # Lees PDF en converteer naar base64
+
+    html = generate_html(beautifier_data)
+    generate_pdf(html, pdf_path)
+
     with open(pdf_path, 'rb') as f:
         pdf_bytes = f.read()
-    
+
     pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
-    
-    # Verwijder tijdelijk bestand
     os.unlink(pdf_path)
-    
+
     return {
         "report": report_data,
         "pdf_base64": pdf_base64,

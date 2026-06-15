@@ -1,0 +1,20 @@
+{
+  "name": "AI-syah.nl",
+  "cover_tag": "Generative Engine Optimization Audit",
+  "website": "ai-syah.nl",
+  "phone": "",
+  "contact_name": "AI-syah.nl",
+  "colors": {
+    "primary": "#22d3ee",
+    "primary_bright": "#67e8f9",
+    "secondary": "#22d3ee",
+    "bg_deep": "#000000",
+    "bg_dark": "#000000",
+    "bg_card": "#111111",
+    "bg_card_alt": "#18181b",
+    "border": "#27272a",
+    "text_primary": "#ffffff",
+    "text_secondary": "#a1a1aa",
+    "text_accent": "#22d3ee"
+  }
+}
