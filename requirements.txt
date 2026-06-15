@@ -6,4 +6,4 @@ anthropic==0.34.0
 python-multipart==0.0.9
 pydantic==1.10.21
 reportlab==4.2.5
-weasyprint==62.3
+weasyprint==60.2
