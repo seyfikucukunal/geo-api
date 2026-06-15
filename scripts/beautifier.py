@@ -725,10 +725,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 def generate_pdf(html: str, output_path: str):
     try:
         from weasyprint import HTML, CSS
-        HTML(string=html).write_pdf(
-            output_path,
-            stylesheets=[CSS(string="@page { size: A4; margin: 0; }")]
-        )
+        css = CSS(string="@page { size: A4; margin: 0; } body { margin: 0; padding: 0; }")
+        HTML(string=html).write_pdf(output_path, stylesheets=[css])
         print(f"  PDF opgeslagen: {output_path}")
     except Exception as e:
         print(f"  Fout WeasyPrint: {e}")
