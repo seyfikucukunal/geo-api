@@ -172,6 +172,105 @@ def findings_grouped_html(findings, severity_color_fn):
     </div>"""
     return result
 
+def build_findings_pages(findings, finding_summary, b, audit_date, severity_color_fn):
+    """Split findings over multiple content-page divs, each with its own footer."""
+    c = BRAND["colors"]
+    sev_map = {"CRITICAL":("Kritiek",c["critical"]),"HIGH":("Hoog",c["high"]),"MEDIUM":("Medium",c["medium"]),"LOW":("Laag",c["low"])}
+    # Collect all finding groups as (html, approx_size)
+    groups = []
+    for sev, (label, col) in sev_map.items():
+        group = [f for f in findings if f.get("severity","").upper() == sev]
+        if not group: continue
+        html = f"""<div class="finding-group">
+      <div class="finding-group-header" style="border-left:3px solid {col};background:{col}10">
+        <span class="finding-group-badge" style="color:{col};background:{col}20;border:1px solid {col}40">{sev}</span>
+        <span class="finding-group-label">{label} prioriteit — {len(group)} {"issue" if len(group)==1 else "issues"}</span>
+      </div>
+      {"".join(finding_card(f) for f in group)}
+    </div>"""
+        # Rough size estimate: header group ~120px + each finding ~140px
+        size = 120 + len(group) * 140
+        groups.append((html, size))
+
+    pages = []
+    # First page has title+summary header (~120px overhead)
+    current_html = ""
+    current_size = 120
+    max_size = 900  # ~900px usable per page (297mm - padding - footer)
+    first_page = True
+
+    for (ghtml, gsize) in groups:
+        if current_size + gsize > max_size and current_html:
+            pages.append((current_html, first_page))
+            current_html = ""
+            current_size = 0
+            first_page = False
+        current_html += ghtml
+        current_size += gsize
+
+    if current_html:
+        pages.append((current_html, first_page))
+
+    result = ""
+    for i, (content, is_first) in enumerate(pages):
+        page_num = f"Pagina {6 + i}"
+        header = f"""<div class="page-label">Bevindingen</div>
+  <div class="section-title">Wat We <em>Vonden</em></div>
+  <div class="finding-summary">{len(findings)} problemen gevonden. {finding_summary}</div>""" if is_first else '<div style="padding-top:32px"></div>'
+        result += f"""<div class="content-page">
+  {header}
+  {content}
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">{page_num}</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
+</div>
+"""
+    return result, len(pages)
+
+def build_action_pages(quick_wins, medium_term, strategic, b, audit_date, c, start_page):
+    """Split action plan over multiple content-page divs."""
+    tiers = []
+    if quick_wins:
+        qw_html = "".join(action_item(i+1, it, c["secondary"]) for i, it in enumerate(quick_wins))
+        tiers.append((f'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Week · Quick Wins</span><span class="tier-badge" style="color:{c["secondary"]};background:{c["secondary"]}18;border:1px solid {c["secondary"]}40">Direct Uitvoerbaar</span></div>{qw_html}</div>', len(quick_wins)))
+    if medium_term:
+        mt_html = "".join(action_item(i+1, it, c["primary"]) for i, it in enumerate(medium_term))
+        tiers.append((f'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Maand</span><span class="tier-badge" style="color:{c["primary"]};background:{c["primary"]}18;border:1px solid {c["primary"]}40">Content + Autoriteit</span></div>{mt_html}</div>', len(medium_term)))
+    if strategic:
+        str_html = "".join(action_item(i+1, it, "#9B59B6") for i, it in enumerate(strategic))
+        tiers.append((f'<div class="action-tier"><div class="tier-header"><span class="tier-label">Dit Kwartaal · Strategisch</span><span class="tier-badge" style="color:#9B59B6;background:#9B59B618;border:1px solid #9B59B640">Lange Termijn</span></div>{str_html}</div>', len(strategic)))
+
+    pages = []
+    current_html = ""
+    current_size = 120  # header overhead
+    max_size = 900
+    first_page = True
+
+    for (thtml, item_count) in tiers:
+        tsize = 60 + item_count * 120
+        if current_size + tsize > max_size and current_html:
+            pages.append((current_html, first_page))
+            current_html = ""
+            current_size = 0
+            first_page = False
+        current_html += thtml
+        current_size += tsize
+
+    if current_html:
+        pages.append((current_html, first_page))
+
+    result = ""
+    for i, (content, is_first) in enumerate(pages):
+        page_num = f"Pagina {start_page + i}"
+        header = """<div class="page-label">Actieplan</div>
+  <div class="section-title">Wat Nu <em>Te Doen</em></div>
+  <div class="section-sub">Geprioriteerd op impact en inspanning.</div>""" if is_first else '<div style="padding-top:32px"></div>'
+        result += f"""<div class="content-page">
+  {header}
+  {content}
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">{page_num}</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
+</div>
+"""
+    return result, len(pages)
+
 def action_item(num, item, timeframe_color):
     title = item.get("title","") if isinstance(item,dict) else str(item)
     desc = item.get("description","") if isinstance(item,dict) else ""
@@ -247,7 +346,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     avg_platform = round(sum(p.get("score",0) for p in platforms)/len(platforms)) if platforms else 0
     platform_summary = f"De gemiddelde AI-zichtbaarheidsscore van {company} is <strong>{avg_platform}/100</strong> — AI-zoekmachines kunnen het bedrijf moeilijk vinden en citeren. Directe actie is vereist."
     crawler_rows_html = "".join(crawler_row(cr) for cr in crawlers)
-    findings_grouped = findings_grouped_html(findings, severity_color)
 
     finding_counts = {
         "CRITICAL": sum(1 for f in findings if f.get("severity","").upper()=="CRITICAL"),
@@ -257,9 +355,10 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     }
     finding_summary = " · ".join(f'<span style="color:{severity_color(k)}">{v} {k}</span>' for k, v in finding_counts.items() if v > 0)
 
-    qw_html  = "".join(action_item(i+1, it, c["secondary"]) for i, it in enumerate(quick_wins))
-    mt_html  = "".join(action_item(i+1, it, c["primary"])   for i, it in enumerate(medium_term))
-    str_html = "".join(action_item(i+1, it, "#9B59B6")      for i, it in enumerate(strategic))
+    findings_pages_html, n_finding_pages = build_findings_pages(findings, finding_summary, b, audit_date, severity_color)
+    action_start_page = 6 + n_finding_pages
+    action_pages_html, n_action_pages = build_action_pages(quick_wins, medium_term, strategic, b, audit_date, c, action_start_page)
+    appendix_page = action_start_page + n_action_pages
 
     strengths_html = ""; gaps_html = ""
     if profile:
@@ -321,13 +420,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:0 0 44px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000}}}}
-  @page cover-page{{size:A4;margin:0}}
-  .cover{{page:cover-page}}
-  html{{background:#000000}}
-  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a;background:#000000}}
-  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center;background:#000000}}
-  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right;background:#000000}}
+  @page{{size:A4;margin:0}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
@@ -411,9 +504,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .trust-icon{{font-size:15px}}
 
   /* ══ CONTENT PAGES ══ */
-  .content-page{{padding:48px 52px 20px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
-  .content-page-auto{{padding:48px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
-  .content-page::before,.content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
+  .content-page{{padding:48px 52px 90px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
+  .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
   .section-title em{{color:var(--cyan);font-style:normal}}
@@ -502,9 +594,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 </style>
 </head>
 <body>
-<div class="run-footer-brand">{b['name']}</div>
-<div class="run-footer-page">Pagina <span style="content:counter(page)"></span></div>
-<div class="run-footer-right">Vertrouwelijk · {audit_date}</div>
 <div class="page">
 
 <!-- COVER -->
@@ -644,6 +733,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     {"".join(f'<div class="scores-table-row"><span class="st-name">{d.get("name","")}</span><span class="st-score" style="color:{score_color(d.get("score",0))}">{d.get("score",0)}/100</span><span class="st-weight">{d.get("weight","")}</span><span class="st-weighted">{d.get("weighted_score","")} pts</span></div>' for d in dimensions)}
     <div class="scores-table-total"><span>Totale GEO Score</span><span></span><span>100%</span><span style="color:{overall_color};font-weight:bold">{overall} pts</span></div>
   </div>
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 2</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 3: SCORE BREAKDOWN VISUAL -->
@@ -655,6 +745,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="section-divider"></div>
   <div class="page-label">Visueel Overzicht</div>
   <div class="chart-wrap">{chart_html}</div>
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 3</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 4: AI GEREEDHEID -->
@@ -666,6 +757,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="chart-wrap" style="margin-bottom:20px">{platform_bar_html}</div>
   <div class="platform-table-header"><span>AI Platform</span><span>Score</span><span>Status</span></div>
   {platform_table_html}
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 4</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 5: CRAWLER STATUS -->
@@ -678,25 +770,14 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     <thead><tr><th>Crawler</th><th>Platform</th><th>Status</th><th>Aanbeveling</th></tr></thead>
     <tbody>{crawler_rows_html}</tbody>
   </table>
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 5</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
-<!-- PAGE 6+: BEVINDINGEN (auto) -->
-<div class="content-page-auto">
-  <div class="page-label">Bevindingen</div>
-  <div class="section-title">Wat We <em>Vonden</em></div>
-  <div class="finding-summary">{len(findings)} problemen gevonden. {finding_summary}</div>
-  {findings_grouped}
-</div>
+<!-- PAGINAS 6+: BEVINDINGEN (automatisch gesplitst) -->
+{findings_pages_html}
 
-<!-- ACTIEPLAN (auto) -->
-<div class="content-page-auto">
-  <div class="page-label">Actieplan</div>
-  <div class="section-title">Wat Nu <em>Te Doen</em></div>
-  <div class="section-sub">Geprioriteerd op impact en inspanning.</div>
-  {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Week · Quick Wins</span><span class="tier-badge" style="color:'+c['secondary']+';background:'+c['secondary']+'18;border:1px solid '+c['secondary']+'40">Direct Uitvoerbaar</span></div>'+qw_html+'</div>' if quick_wins else ''}
-  {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Maand</span><span class="tier-badge" style="color:'+c['primary']+';background:'+c['primary']+'18;border:1px solid '+c['primary']+'40">Content + Autoriteit</span></div>'+mt_html+'</div>' if medium_term else ''}
-  {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Dit Kwartaal · Strategisch</span><span class="tier-badge" style="color:#9B59B6;background:#9B59B618;border:1px solid #9B59B640">Lange Termijn</span></div>'+str_html+'</div>' if strategic else ''}
-</div>
+<!-- ACTIEPLAN (automatisch gesplitst) -->
+{action_pages_html}
 
 <!-- APPENDIX -->
 <div class="content-page">
@@ -721,6 +802,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="glossary-table-row"><span class="gt-term">IndexNow</span><span class="gt-def">Protocol voor directe notificatie van zoekmachines bij content wijzigingen</span></div>
   <div class="section-divider"></div>
   <div class="disclaimer-block">Dit rapport is gegenereerd door {b['name']}. Scores en aanbevelingen zijn gebaseerd op geautomatiseerde analyse en industrie benchmarks. Resultaten dienen gevalideerd te worden met platform-specifieke testing. © {datetime.now().year} {b['name']} · Vertrouwelijk</div>
+  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina {appendix_page}</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 </div></body></html>"""
