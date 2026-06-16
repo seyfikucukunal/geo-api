@@ -321,7 +321,12 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:0}}
+  @page{{size:A4;margin:0 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%}}@bottom-center{{content:element(run-footer-page);width:33%}}@bottom-right{{content:element(run-footer-right);width:34%}}}}
+  @page cover-page{{size:A4;margin:0}}
+  .cover{{page:cover-page}}
+  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a}}
+  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center}}
+  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
@@ -405,10 +410,9 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .trust-icon{{font-size:15px}}
 
   /* ══ CONTENT PAGES ══ */
-  .content-page{{padding:48px 52px 90px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
-  .content-page-auto{{padding:48px 52px 90px 52px;min-height:297mm;page-break-after:always;position:relative;background:var(--bg)}}
-  .content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
-  .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
+  .content-page{{padding:48px 52px 20px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
+  .content-page-auto{{padding:48px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
+  .content-page::before,.content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
   .section-title em{{color:var(--cyan);font-style:normal}}
@@ -497,6 +501,9 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 </style>
 </head>
 <body>
+<div class="run-footer-brand">{b['name']}</div>
+<div class="run-footer-page">Pagina <span style="content:counter(page)"></span></div>
+<div class="run-footer-right">Vertrouwelijk · {audit_date}</div>
 <div class="page">
 
 <!-- COVER -->
@@ -636,7 +643,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     {"".join(f'<div class="scores-table-row"><span class="st-name">{d.get("name","")}</span><span class="st-score" style="color:{score_color(d.get("score",0))}">{d.get("score",0)}/100</span><span class="st-weight">{d.get("weight","")}</span><span class="st-weighted">{d.get("weighted_score","")} pts</span></div>' for d in dimensions)}
     <div class="scores-table-total"><span>Totale GEO Score</span><span></span><span>100%</span><span style="color:{overall_color};font-weight:bold">{overall} pts</span></div>
   </div>
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 2</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 3: SCORE BREAKDOWN VISUAL -->
@@ -648,7 +654,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="section-divider"></div>
   <div class="page-label">Visueel Overzicht</div>
   <div class="chart-wrap">{chart_html}</div>
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 3</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 4: AI GEREEDHEID -->
@@ -660,7 +665,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="chart-wrap" style="margin-bottom:20px">{platform_bar_html}</div>
   <div class="platform-table-header"><span>AI Platform</span><span>Score</span><span>Status</span></div>
   {platform_table_html}
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 4</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 5: CRAWLER STATUS -->
@@ -673,19 +677,17 @@ def generate_html(data: dict, logo_path: str = None) -> str:
     <thead><tr><th>Crawler</th><th>Platform</th><th>Status</th><th>Aanbeveling</th></tr></thead>
     <tbody>{crawler_rows_html}</tbody>
   </table>
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 5</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
-<!-- PAGE 6: BEVINDINGEN -->
+<!-- PAGE 6+: BEVINDINGEN (auto, meerdere paginas mogelijk) -->
 <div class="content-page-auto">
   <div class="page-label">Bevindingen</div>
   <div class="section-title">Wat We <em>Vonden</em></div>
   <div class="finding-summary">{len(findings)} problemen gevonden. {finding_summary}</div>
   {findings_grouped}
-  <div class="page-footer-static"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 6</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
-<!-- PAGE 7: ACTIEPLAN -->
+<!-- ACTIEPLAN (auto, meerdere paginas mogelijk) -->
 <div class="content-page-auto">
   <div class="page-label">Actieplan</div>
   <div class="section-title">Wat Nu <em>Te Doen</em></div>
@@ -693,10 +695,9 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Week · Quick Wins</span><span class="tier-badge" style="color:'+c['secondary']+';background:'+c['secondary']+'18;border:1px solid '+c['secondary']+'40">Direct Uitvoerbaar</span></div>'+qw_html+'</div>' if quick_wins else ''}
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Maand</span><span class="tier-badge" style="color:'+c['primary']+';background:'+c['primary']+'18;border:1px solid '+c['primary']+'40">Content + Autoriteit</span></div>'+mt_html+'</div>' if medium_term else ''}
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Dit Kwartaal · Strategisch</span><span class="tier-badge" style="color:#9B59B6;background:#9B59B618;border:1px solid #9B59B640">Lange Termijn</span></div>'+str_html+'</div>' if strategic else ''}
-  <div class="page-footer-static"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 7</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
-<!-- PAGE 8: APPENDIX -->
+<!-- APPENDIX -->
 <div class="content-page">
   <div class="page-label">Appendix</div>
   <div class="section-title"><em>Methodologie</em></div>
@@ -719,7 +720,6 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   <div class="glossary-table-row"><span class="gt-term">IndexNow</span><span class="gt-def">Protocol voor directe notificatie van zoekmachines bij content wijzigingen</span></div>
   <div class="section-divider"></div>
   <div class="disclaimer-block">Dit rapport is gegenereerd door {b['name']}. Scores en aanbevelingen zijn gebaseerd op geautomatiseerde analyse en industrie benchmarks. Resultaten dienen gevalideerd te worden met platform-specifieke testing. © {datetime.now().year} {b['name']} · Vertrouwelijk</div>
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 8</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 </div></body></html>"""
