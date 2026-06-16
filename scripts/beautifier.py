@@ -460,21 +460,21 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .crawler-table{{width:100%;border-collapse:collapse;font-size:11px}}
   .crawler-table th{{background:var(--card2);color:var(--muted);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}}
   .crawler-table td{{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}}
-  .finding-group{{margin-bottom:24px}}
+  .finding-group{{margin-bottom:24px;page-break-inside:avoid}}
   .finding-group-header{{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:6px 6px 0 0}}
   .finding-group-badge{{font-size:9px;letter-spacing:1.5px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase}}
   .finding-group-label{{font-size:11px;color:var(--muted);font-weight:500}}
   .finding-summary{{font-size:11px;color:var(--muted);margin-bottom:16px}}
-  .finding-card{{border-left:3px solid;background:var(--card);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:10px}}
+  .finding-card{{border-left:3px solid;background:var(--card);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:10px;page-break-inside:avoid}}
   .finding-header{{display:flex;align-items:center;gap:10px;margin-bottom:6px}}
   .severity-badge{{font-size:9px;letter-spacing:1.5px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;flex-shrink:0}}
   .finding-title{{font-size:12px;font-weight:600;color:var(--text)}}
   .finding-body{{font-size:11px;color:var(--muted);line-height:1.6}}
-  .action-tier{{margin-bottom:28px}}
+  .action-tier{{margin-bottom:28px;page-break-inside:avoid}}
   .tier-header{{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}}
   .tier-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}}
   .tier-badge{{font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:600;padding:3px 12px;border-radius:3px}}
-  .action-item{{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:8px}}
+  .action-item{{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:8px;page-break-inside:avoid}}
   .action-num{{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}}
   .action-content{{flex:1}}
   .action-title{{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:10px}}
