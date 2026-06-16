@@ -103,7 +103,7 @@ def mini_gauge_svg(score, size=72):
       <text x="{cx}" y="{cy + 5}" text-anchor="middle" font-family="Arial" font-size="13" fill="{color}" font-weight="bold">{score}</text>
     </svg>"""
 
-def bar_chart_svg(dimensions, width=620, height=220):
+def bar_chart_svg(dimensions, width=610, height=220):
     bars = ""
     label_w = 190; score_w = 40
     bar_area = width - label_w - score_w - 20
@@ -128,7 +128,7 @@ def platform_badge(name, score):
       <div class="platform-label" style="color:{col};background:{col}18;border:1px solid {col}35">{label}</div>
     </div>"""
 
-def platform_bar_chart_svg(platforms, width=620, height=180):
+def platform_bar_chart_svg(platforms, width=610, height=180):
     bars = ""
     label_w = 160; score_w = 50
     bar_area = width - label_w - score_w - 20
@@ -329,7 +329,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .page{{width:210mm;margin:0 auto}}
 
   /* ══ COVER ══ */
-  .cover{{background:linear-gradient(160deg,#000 0%,#0a0a0f 50%,#000 100%);display:flex;flex-direction:column;position:relative;overflow:hidden;page-break-after:always}}
+  .cover{{background:linear-gradient(160deg,#000 0%,#0a0a0f 50%,#000 100%);display:flex;flex-direction:column;position:relative;overflow:hidden;page-break-after:always;height:297mm}}
   .cover-line{{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,{c['primary']},transparent)}}
 
   /* header */
@@ -405,7 +405,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .trust-icon{{font-size:15px}}
 
   /* ══ CONTENT PAGES ══ */
-  .content-page{{padding:48px 52px 80px 52px;min-height:297mm;page-break-after:always;position:relative;background:var(--bg)}}
+  .content-page{{padding:48px 52px 90px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
   .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
@@ -480,7 +480,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .action-title{{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:10px}}
   .action-time{{font-size:9px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:1px 7px;border-radius:3px;font-weight:400}}
   .action-desc{{font-size:11px;color:var(--muted);line-height:1.5}}
-  .page-footer{{position:absolute;bottom:20px;left:52px;right:52px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding-top:12px;font-size:9px;color:var(--muted)}}
+  .page-footer{{position:absolute;bottom:20px;left:52px;right:52px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding-top:10px;font-size:9px;color:var(--muted)}}
   .footer-brand{{color:var(--cyan);font-weight:600}}
   .footer-page{{text-align:center;color:var(--muted)}}
   .footer-right{{text-align:right}}
