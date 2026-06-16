@@ -103,7 +103,7 @@ def mini_gauge_svg(score, size=72):
       <text x="{cx}" y="{cy + 5}" text-anchor="middle" font-family="Arial" font-size="13" fill="{color}" font-weight="bold">{score}</text>
     </svg>"""
 
-def bar_chart_svg(dimensions, width=620, height=220):
+def bar_chart_svg(dimensions, width=660, height=220):
     bars = ""
     label_w = 190; score_w = 40
     bar_area = width - label_w - score_w - 20
@@ -128,7 +128,7 @@ def platform_badge(name, score):
       <div class="platform-label" style="color:{col};background:{col}18;border:1px solid {col}35">{label}</div>
     </div>"""
 
-def platform_bar_chart_svg(platforms, width=620, height=180):
+def platform_bar_chart_svg(platforms, width=660, height=180):
     bars = ""
     label_w = 160; score_w = 50
     bar_area = width - label_w - score_w - 20
@@ -321,15 +321,14 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:0}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
-  body{{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;width:210mm}}
-  .page{{width:210mm;margin:0 auto}}
+  body{{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}}
+  .page{{width:794px;margin:0 auto}}
 
   /* ══ COVER ══ */
-  .cover{{background:linear-gradient(160deg,#000 0%,#0a0a0f 50%,#000 100%);display:flex;flex-direction:column;position:relative;overflow:hidden;page-break-after:always}}
+  .cover{{background:linear-gradient(160deg,#000 0%,#0a0a0f 50%,#000 100%);display:flex;flex-direction:column;height:297mm;page-break-after:always;overflow:hidden}}
   .cover-line{{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,{c['primary']},transparent)}}
 
   /* header */
@@ -405,8 +404,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .trust-icon{{font-size:15px}}
 
   /* ══ CONTENT PAGES ══ */
-  .content-page{{padding:48px 52px;min-height:1123px;page-break-after:always;position:relative;background:var(--bg)}}
-  .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
+  .content-page{{padding:48px 52px 0 52px;height:297mm;page-break-after:always;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}}
+  .content-page::before{{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%);margin:-48px -52px 46px -52px}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
   .section-title em{{color:var(--cyan);font-style:normal}}
@@ -460,27 +459,27 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .crawler-table{{width:100%;border-collapse:collapse;font-size:11px}}
   .crawler-table th{{background:var(--card2);color:var(--muted);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}}
   .crawler-table td{{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}}
-  .finding-group{{margin-bottom:24px;page-break-inside:avoid}}
+  .finding-group{{margin-bottom:24px}}
   .finding-group-header{{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:6px 6px 0 0}}
   .finding-group-badge{{font-size:9px;letter-spacing:1.5px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase}}
   .finding-group-label{{font-size:11px;color:var(--muted);font-weight:500}}
   .finding-summary{{font-size:11px;color:var(--muted);margin-bottom:16px}}
-  .finding-card{{border-left:3px solid;background:var(--card);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:10px;page-break-inside:avoid}}
+  .finding-card{{border-left:3px solid;background:var(--card);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:10px}}
   .finding-header{{display:flex;align-items:center;gap:10px;margin-bottom:6px}}
   .severity-badge{{font-size:9px;letter-spacing:1.5px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;flex-shrink:0}}
   .finding-title{{font-size:12px;font-weight:600;color:var(--text)}}
   .finding-body{{font-size:11px;color:var(--muted);line-height:1.6}}
-  .action-tier{{margin-bottom:28px;page-break-inside:avoid}}
+  .action-tier{{margin-bottom:28px}}
   .tier-header{{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}}
   .tier-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}}
   .tier-badge{{font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:600;padding:3px 12px;border-radius:3px}}
-  .action-item{{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:8px;page-break-inside:avoid}}
+  .action-item{{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:8px}}
   .action-num{{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}}
   .action-content{{flex:1}}
   .action-title{{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:10px}}
   .action-time{{font-size:9px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:1px 7px;border-radius:3px;font-weight:400}}
   .action-desc{{font-size:11px;color:var(--muted);line-height:1.5}}
-  .page-footer{{position:absolute;bottom:24px;left:52px;right:52px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding-top:12px;font-size:9px;color:var(--muted)}}
+  .page-footer{{margin-top:auto;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding:12px 0 24px 0;font-size:9px;color:var(--muted)}}
   .footer-brand{{color:var(--cyan);font-weight:600}}
   .footer-page{{text-align:center;color:var(--muted)}}
   .footer-right{{text-align:right}}
