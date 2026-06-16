@@ -321,12 +321,14 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:0 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000}}}}
+  @page{{size:A4;margin:48px 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000;border-top:1px solid #27272a}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000;border-top:1px solid #27272a}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000;border-top:1px solid #27272a}}}}
   @page cover-page{{size:A4;margin:0}}
+  @page fixed-page{{size:A4;margin:0 0 48px 0}}
   .cover{{page:cover-page}}
-  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a;background:#000000}}
-  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center;background:#000000}}
-  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right;background:#000000}}
+  .content-page{{page:fixed-page}}
+  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;background:#000000}}
+  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;text-align:center;background:#000000}}
+  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;text-align:right;background:#000000}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
@@ -411,8 +413,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 
   /* ══ CONTENT PAGES ══ */
   .content-page{{padding:48px 52px 20px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
-  .content-page-auto{{padding:48px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
-  .content-page::before,.content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
+  .content-page-auto{{padding:20px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
+  .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
   .section-title em{{color:var(--cyan);font-style:normal}}
