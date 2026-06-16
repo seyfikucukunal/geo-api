@@ -321,12 +321,12 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:0 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%}}@bottom-center{{content:element(run-footer-page);width:33%}}@bottom-right{{content:element(run-footer-right);width:34%}}}}
+  @page{{size:A4;margin:0 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000}}}}
   @page cover-page{{size:A4;margin:0}}
   .cover{{page:cover-page}}
-  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a}}
-  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center}}
-  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right}}
+  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a;background:#000000}}
+  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center;background:#000000}}
+  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right;background:#000000}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
