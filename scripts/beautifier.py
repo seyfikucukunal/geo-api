@@ -103,7 +103,7 @@ def mini_gauge_svg(score, size=72):
       <text x="{cx}" y="{cy + 5}" text-anchor="middle" font-family="Arial" font-size="13" fill="{color}" font-weight="bold">{score}</text>
     </svg>"""
 
-def bar_chart_svg(dimensions, width=660, height=220):
+def bar_chart_svg(dimensions, width=620, height=220):
     bars = ""
     label_w = 190; score_w = 40
     bar_area = width - label_w - score_w - 20
@@ -128,7 +128,7 @@ def platform_badge(name, score):
       <div class="platform-label" style="color:{col};background:{col}18;border:1px solid {col}35">{label}</div>
     </div>"""
 
-def platform_bar_chart_svg(platforms, width=660, height=180):
+def platform_bar_chart_svg(platforms, width=620, height=180):
     bars = ""
     label_w = 160; score_w = 50
     bar_area = width - label_w - score_w - 20
@@ -321,11 +321,12 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
+  @page{{size:A4;margin:0}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
-  body{{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}}
-  .page{{width:794px;margin:0 auto}}
+  body{{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;width:210mm}}
+  .page{{width:210mm;margin:0 auto}}
 
   /* ══ COVER ══ */
   .cover{{background:linear-gradient(160deg,#000 0%,#0a0a0f 50%,#000 100%);display:flex;flex-direction:column;position:relative;overflow:hidden;page-break-after:always}}
