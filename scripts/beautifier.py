@@ -406,6 +406,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 
   /* ══ CONTENT PAGES ══ */
   .content-page{{padding:48px 52px 90px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
+  .content-page-auto{{padding:48px 52px 90px 52px;min-height:297mm;page-break-after:always;position:relative;background:var(--bg)}}
+  .content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
@@ -481,6 +483,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .action-time{{font-size:9px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:1px 7px;border-radius:3px;font-weight:400}}
   .action-desc{{font-size:11px;color:var(--muted);line-height:1.5}}
   .page-footer{{position:absolute;bottom:20px;left:52px;right:52px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding-top:10px;font-size:9px;color:var(--muted)}}
+  .page-footer-static{{position:relative;margin-top:32px;left:0;right:0;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;border-top:1px solid var(--border);padding-top:10px;font-size:9px;color:var(--muted)}}
   .footer-brand{{color:var(--cyan);font-weight:600}}
   .footer-page{{text-align:center;color:var(--muted)}}
   .footer-right{{text-align:right}}
@@ -674,23 +677,23 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 </div>
 
 <!-- PAGE 6: BEVINDINGEN -->
-<div class="content-page">
+<div class="content-page-auto">
   <div class="page-label">Bevindingen</div>
   <div class="section-title">Wat We <em>Vonden</em></div>
   <div class="finding-summary">{len(findings)} problemen gevonden. {finding_summary}</div>
   {findings_grouped}
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 6</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
+  <div class="page-footer-static"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 6</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 7: ACTIEPLAN -->
-<div class="content-page">
+<div class="content-page-auto">
   <div class="page-label">Actieplan</div>
   <div class="section-title">Wat Nu <em>Te Doen</em></div>
   <div class="section-sub">Geprioriteerd op impact en inspanning.</div>
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Week · Quick Wins</span><span class="tier-badge" style="color:'+c['secondary']+';background:'+c['secondary']+'18;border:1px solid '+c['secondary']+'40">Direct Uitvoerbaar</span></div>'+qw_html+'</div>' if quick_wins else ''}
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Deze Maand</span><span class="tier-badge" style="color:'+c['primary']+';background:'+c['primary']+'18;border:1px solid '+c['primary']+'40">Content + Autoriteit</span></div>'+mt_html+'</div>' if medium_term else ''}
   {'<div class="action-tier"><div class="tier-header"><span class="tier-label">Dit Kwartaal · Strategisch</span><span class="tier-badge" style="color:#9B59B6;background:#9B59B618;border:1px solid #9B59B640">Lange Termijn</span></div>'+str_html+'</div>' if strategic else ''}
-  <div class="page-footer"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 7</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
+  <div class="page-footer-static"><span class="footer-brand">{b['name']}</span><span class="footer-page">Pagina 7</span><span class="footer-right">Vertrouwelijk · {audit_date}</span></div>
 </div>
 
 <!-- PAGE 8: APPENDIX -->
