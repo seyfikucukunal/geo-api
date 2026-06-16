@@ -321,14 +321,13 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 <meta charset="UTF-8">
 <title>GEO Rapport — {company}</title>
 <style>
-  @page{{size:A4;margin:48px 0 48px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000;border-top:1px solid #27272a}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000;border-top:1px solid #27272a}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000;border-top:1px solid #27272a}}}}
+  @page{{size:A4;margin:0 0 44px 0;@bottom-left{{content:element(run-footer-brand);width:33%;background:#000000}}@bottom-center{{content:element(run-footer-page);width:33%;background:#000000}}@bottom-right{{content:element(run-footer-right);width:34%;background:#000000}}}}
   @page cover-page{{size:A4;margin:0}}
-  @page fixed-page{{size:A4;margin:0 0 48px 0}}
   .cover{{page:cover-page}}
-  .content-page{{page:fixed-page}}
-  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;background:#000000}}
-  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;text-align:center;background:#000000}}
-  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;text-align:right;background:#000000}}
+  html{{background:#000000}}
+  .run-footer-brand{{position:running(run-footer-brand);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#22d3ee;font-weight:600;padding:8px 0 0 52px;border-top:1px solid #27272a;background:#000000}}
+  .run-footer-page{{position:running(run-footer-page);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 0 0;border-top:1px solid #27272a;text-align:center;background:#000000}}
+  .run-footer-right{{position:running(run-footer-right);font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#a1a1aa;padding:8px 52px 0 0;border-top:1px solid #27272a;text-align:right;background:#000000}}
   *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
   :root{{--cyan:{c['primary']};--bg:{c['bg_dark']};--card:{c['bg_card']};--card2:{c['bg_card_alt']};--border:{c['border']};--text:{c['text_primary']};--muted:{c['text_secondary']}}}
   html{{font-size:13px}}
@@ -413,8 +412,8 @@ def generate_html(data: dict, logo_path: str = None) -> str:
 
   /* ══ CONTENT PAGES ══ */
   .content-page{{padding:48px 52px 20px 52px;height:297mm;page-break-after:always;position:relative;background:var(--bg);overflow:hidden}}
-  .content-page-auto{{padding:20px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
-  .content-page::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
+  .content-page-auto{{padding:48px 52px 20px 52px;page-break-after:always;background:var(--bg);position:relative}}
+  .content-page::before,.content-page-auto::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 60%)}}
   .page-label{{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}}
   .section-title{{font-size:28px;color:var(--text);margin-bottom:6px;font-weight:bold}}
   .section-title em{{color:var(--cyan);font-style:normal}}
@@ -437,7 +436,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   .meta-label{{color:var(--muted)}}
   .meta-value{{color:var(--text);font-weight:500;text-align:right;max-width:150px}}
   .profile-meta-divider{{height:1px;background:#22d3ee30;margin:4px 0}}
-  .scores-table{{width:100%;margin-bottom:20px}}
+  .scores-table{{width:100%;margin-bottom:20px;page-break-inside:avoid}}
   .scores-table-header{{display:grid;grid-template-columns:1fr 100px 80px 80px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px 6px 0 0;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}}
   .scores-table-row{{display:grid;grid-template-columns:1fr 100px 80px 80px;padding:10px 12px;border:1px solid var(--border);border-top:none;font-size:11px}}
   .st-name{{color:var(--text);font-weight:500}}
@@ -681,7 +680,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   </table>
 </div>
 
-<!-- PAGE 6+: BEVINDINGEN (auto, meerdere paginas mogelijk) -->
+<!-- PAGE 6+: BEVINDINGEN (auto) -->
 <div class="content-page-auto">
   <div class="page-label">Bevindingen</div>
   <div class="section-title">Wat We <em>Vonden</em></div>
@@ -689,7 +688,7 @@ def generate_html(data: dict, logo_path: str = None) -> str:
   {findings_grouped}
 </div>
 
-<!-- ACTIEPLAN (auto, meerdere paginas mogelijk) -->
+<!-- ACTIEPLAN (auto) -->
 <div class="content-page-auto">
   <div class="page-label">Actieplan</div>
   <div class="section-title">Wat Nu <em>Te Doen</em></div>
