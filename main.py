@@ -714,7 +714,17 @@ async def payment_webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Genereer rapport op achtergrond zodat webhook snel antwoordt
         if email and url:
-            background_tasks.add_task(generate_and_send_report, email, url)
+            with get_db() as conn:
+            order = conn.execute(
+                "SELECT report_sent FROM orders WHERE mollie_id = ?", (payment_id,)
+            ).fetchone()
+            if order and order["report_sent"] == 0:
+                conn.execute(
+                    "UPDATE orders SET report_sent = 1 WHERE mollie_id = ?", (payment_id,)
+                )
+                conn.commit()
+                background_tasks.add_task(generate_and_send_report, email, url)
+        
 
     return JSONResponse({"status": "ok"}, status_code=200)
 
